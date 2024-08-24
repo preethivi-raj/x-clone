@@ -11,7 +11,7 @@ import notificationRoutes from "./routes/notification.routes.js"
 
 import connectMongoDb from "./db/connectMongoDB.js";
 
-//last video time : 02:44:19
+//last video time : 03:01:00
 
 dotenv.config();
 
