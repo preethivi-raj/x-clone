@@ -2,6 +2,7 @@ import epxress from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import {v2 as cloudinary} from "cloudinary"
+import cors from "cors"
 
 
 import authRoutes from "./routes/auth.routes.js";
@@ -11,7 +12,7 @@ import notificationRoutes from "./routes/notification.routes.js"
 
 import connectMongoDb from "./db/connectMongoDB.js";
 
-//last video time : 03:01:00
+//last video time : 03:39:00
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ cloudinary.config({
 
 const app = epxress();
 const PORT = process.env.PORT || 3000
-
+app.use(cors())
 
 app.use(epxress.json()) // to parse req.body
 app.use(epxress.urlencoded({extended : true}))
