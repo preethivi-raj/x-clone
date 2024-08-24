@@ -10,6 +10,7 @@ import ProfilePage from './Pages/Profile/ProfilePage'
 import { Toaster } from "react-hot-toast";
 import { useQuery } from '@tanstack/react-query'
 import LoadingSpinner from './components/common/LoadingSpinner'
+import baseUrl from './baseUrl/baseUrl'
 
 
 
@@ -19,7 +20,7 @@ const App = () => {
     queryKey : ['authUser'],
     queryFn : async()=>{
       try {
-        const res = await fetch('http://localhost:5000/api/auth/me')
+        const res = await fetch(`${baseUrl}/api/auth/me`)
         const data = await res.json()
         if(data.error){
           return null;
