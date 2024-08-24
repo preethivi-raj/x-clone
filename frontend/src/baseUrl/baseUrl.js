@@ -1,3 +1,3 @@
-const baseUrl = "https://x-clone-6g3w.onrender.com";
+const baseUrl = "http://localhost:5000";
 
 export default baseUrl;

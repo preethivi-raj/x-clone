@@ -72,9 +72,10 @@ export const login = async (req , res)=>{
      const isPasswordValid = await bcrypt.compare(password , user?.password || "")
 
      if(!user || !isPasswordValid){
-        res.status(400).json( { error : "Invalid Username or Password"} )
+        return res.status(400).json( { error : "Invalid Username or Password"} )
      }
 
+  
      generateTokenSetCookie(user._id , res);
 
      res.status(201).json({
@@ -88,6 +89,7 @@ export const login = async (req , res)=>{
         coverImg : user.coverImg,
 
     })
+
 
    }catch(error){
       console.log("Error in Login controller",error.message)
