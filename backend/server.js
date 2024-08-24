@@ -11,10 +11,14 @@ import postRoutes from "./routes/post.routes.js"
 import notificationRoutes from "./routes/notification.routes.js"
 
 import connectMongoDb from "./db/connectMongoDB.js";
+import path from "path"
 
 //last video time : 03:39:00
 
 dotenv.config();
+const app = epxress();
+
+const __dirname = path.resolve()
 
 cloudinary.config({
     cloud_name : process.env.CLOUDINARY_CLOUD_NAME,
@@ -22,20 +26,24 @@ cloudinary.config({
     api_secret : process.env.CLOUDINARY_API_SECRET
 })
 
-
-
-const app = epxress();
 const PORT = process.env.PORT || 3000
 app.use(cors())
-
-app.use(epxress.json()) // to parse req.body
-app.use(epxress.urlencoded({extended : true}))
 app.use(cookieParser())
+app.use(epxress.urlencoded({extended : true}))
+app.use(epxress.json()) // to parse req.body
 
 app.use("/api/auth" , authRoutes)
 app.use("/api/users" , usersRoutes)
 app.use("/api/posts" , postRoutes)
 app.use("/api/notifications" , notificationRoutes)
+
+if(process.env.NODE_ENV === "production"){
+    app.use(epxress.static(path.join(__dirname , "/frontend/build")))
+    app.get("*" , (req , res)=>{
+        res.sendFile(path.resolve(__dirname , "frontend" , "build" , "index.html"))
+    }
+    )
+}
 
 app.listen(PORT ,()=>{
     console.log(`Server is running on port number ${PORT} `)

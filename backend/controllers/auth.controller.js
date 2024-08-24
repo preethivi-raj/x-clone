@@ -1,6 +1,7 @@
 import User from "../models/user.model.js"
 import bcrypt from "bcryptjs"
-import {generateTokenAndSetCookies} from "../lib/utils/generateToken.js"
+
+import generateTokenSetCookie from "../lib/generateToken.js"
 
 export const signup = async (req , res)=>{
    try{
@@ -37,7 +38,7 @@ export const signup = async (req , res)=>{
     })
 
     if(newUser){
-        generateTokenAndSetCookies(newUser._id,res)
+       generateTokenSetCookie(newUser._id, res)
         await newUser.save()
 
         res.status(201).json({
@@ -74,7 +75,7 @@ export const login = async (req , res)=>{
         res.status(400).json( { error : "Invalid Username or Password"} )
      }
 
-     generateTokenAndSetCookies(user._id , res)
+     generateTokenSetCookie(user._id , res);
 
      res.status(201).json({
         _id : user._id ,

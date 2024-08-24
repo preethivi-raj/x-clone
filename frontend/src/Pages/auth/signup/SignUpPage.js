@@ -7,7 +7,7 @@ import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const SignUpPage = () => {
@@ -17,24 +17,20 @@ const SignUpPage = () => {
 		fullName: "",
 		password: "",
 	});
-
-
-
+	const queryClient = useQueryClient();
 	const { mutate, isError, isPending, error } = useMutation({
 		mutationFn: async ({ email, username, fullName, password }) => {
 			try {
 				const res = await fetch("http://localhost:5000/api/auth/signup", {
 					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
+					headers : { 
+						'Content-Type': 'application/json',
+						'Accept': 'application/json'
+					 },
 					body: JSON.stringify({ email, username, fullName, password }),
 				});
-
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.error || "Failed to create account");
-				console.log(data);
-				return data;
 			} catch (error) {
 				console.error(error);
 				throw error;
@@ -42,8 +38,7 @@ const SignUpPage = () => {
 		},
 		onSuccess: () => {
 			toast.success("Account created successfully");
-
-			
+			queryClient.invalidateQueries({ queryKey: ["authUser"] });
 		},
 	});
 
