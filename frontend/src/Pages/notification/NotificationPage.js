@@ -1,35 +1,67 @@
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import baseUrl from "../../baseUrl/baseUrl"
+import toast from "react-hot-toast";
 
 const NotificationPage = () => {
-	const isLoading = false;
-	const notifications = [
-		{
-			_id: "1",
-			from: {
-				_id: "1",
-				username: "johndoe",
-				profileImg: "/avatars/boy2.png",
-			},
-			type: "follow",
+	const queryClient = useQueryClient();
+	const {data:notifications, isLoading} = useQuery({
+		queryKey : ["notifications"],
+		queryFn : async () => {
+			try {
+				const res = await fetch (`${baseUrl}/api/notifications`, {
+					method : "GET",
+					credentials : "include",
+					headers : {
+						"Content-Type" : "application/json",
+					}
+				})
+				const data = await res.json()
+				if(!res.ok){
+					throw new Error(data.error || "Something went wrong")
+				}
+				return data
+			} catch (error) {
+				throw new Error(error)
+			}
+		}
+	})
+
+	const {mutate:deleteNotification} = useMutation({
+		mutationFn : async () => {
+			try {
+				const res = await fetch (`${baseUrl}/api/notifications`, {
+					method : "DELETE",
+					credentials : "include",
+					headers : {
+						"Content-Type" : "application/json",
+					}
+				})
+				const data = await res.json()
+				if(!res.ok){
+					throw new Error(data.error || "Something went wrong")
+				}
+				return data
+			} catch (error) {
+				throw new Error(error)
+			}
 		},
-		{
-			_id: "2",
-			from: {
-				_id: "2",
-				username: "janedoe",
-				profileImg: "/avatars/girl1.png",
-			},
-			type: "like",
+		onSuccess :()=>{
+			toast.success("All notifications deleted")
+			queryClient.invalidateQueries({queryKey : ["notifications"]})
 		},
-	];
+		onError : (error) => {
+			toast.error(error.message)
+		}
+
+	})
 
 	const deleteNotifications = () => {
-		alert("All notifications deleted");
+		deleteNotification()
 	};
 
 	return (
@@ -46,7 +78,7 @@ const NotificationPage = () => {
 							className='dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52'
 						>
 							<li>
-								<a onClick={deleteNotifications}>Delete all notifications</a>
+								<button onClick={deleteNotifications}>Delete all notifications</button>
 							</li>
 						</ul>
 					</div>
@@ -65,7 +97,7 @@ const NotificationPage = () => {
 							<Link to={`/profile/${notification.from.username}`}>
 								<div className='avatar'>
 									<div className='w-8 rounded-full'>
-										<img src={notification.from.profileImg || "/avatar-placeholder.png"} />
+										<img src={notification.from.profileImg || "/avatar-placeholder.png"} alt="prfile"/>
 									</div>
 								</div>
 								<div className='flex gap-1'>

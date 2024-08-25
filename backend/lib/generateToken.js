@@ -7,10 +7,10 @@ const generateTokenSetCookie = (userId ,res)=>{
         }
     );
     res.cookie("jwt",token, {
-        maxAge : 15*24*60*60*1000,
-        httpOnly: true,
-        secure: false, // Set to true in production if using HTTPS
-        sameSite: 'Lax' // Use 'None' if you want to share the cookie across domains
+        maxAge: 15 * 24 * 60 * 60 * 1000, //MS
+		httpOnly: true, // prevent XSS attacks cross-site scripting attacks
+		sameSite: "strict", // CSRF attacks cross-site request forgery attacks
+		secure: process.env.NODE_ENV !== "development",
     });
 }
 

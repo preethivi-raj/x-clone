@@ -13,7 +13,6 @@ import LoadingSpinner from './components/common/LoadingSpinner'
 import baseUrl from './baseUrl/baseUrl'
 
 
-
 const App = () => {
 
   const {data : authUser , isLoading}= useQuery({
@@ -30,10 +29,9 @@ const App = () => {
         if(!res.ok){
           throw new Error(data.error || 'Something went wrong')
         }
-        console.log("auth user is here",data) 
         return data
       } catch (error) {
-        throw error
+        throw new Error(error)
       }
     },
     retry : false,
