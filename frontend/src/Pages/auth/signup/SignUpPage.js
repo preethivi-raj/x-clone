@@ -25,6 +25,7 @@ const SignUpPage = () => {
 			try {
 				const res = await fetch(`${baseUrl}/api/auth/signup`, {
 					method: "POST",
+					 credentials: 'include',
 					headers : { 
 						'Content-Type': 'application/json',
 						'Accept': 'application/json'

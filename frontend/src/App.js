@@ -20,7 +20,9 @@ const App = () => {
     queryKey : ['authUser'],
     queryFn : async()=>{
       try {
-        const res = await fetch(`${baseUrl}/api/auth/me`)
+        const res = await fetch(`${baseUrl}/api/auth/me`,{
+           credentials: 'include',
+        })
         const data = await res.json()
         if(data.error){
           return null;

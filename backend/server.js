@@ -27,10 +27,15 @@ cloudinary.config({
 })
 
 const PORT = process.env.PORT || 3000
-app.use(cors())
+app.use(cors(
+    {
+        origin: 'http://localhost:3000',
+        credentials: true
+    }
+))
 app.use(cookieParser())
 app.use(epxress.urlencoded({extended : true}))
-app.use(epxress.json()) // to parse req.body
+app.use(epxress.json({limit :"5mb"})) // to parse req.body
 
 app.use("/api/auth" , authRoutes)
 app.use("/api/users" , usersRoutes)

@@ -6,9 +6,8 @@ import Notification from "../models/notification.model.js";
 export const createPost = async(req , res)=>{
     try {
         const {text}= req.body;
-        const {img} = req.body;
+        let {img} = req.body;
         const userId =req.user._id.toString();
-
         const user = await User.findById( userId)
         if(!user){
             return res.status(404).json({message:"404 Not User Found"})
@@ -18,15 +17,15 @@ export const createPost = async(req , res)=>{
             return res.status(400).json({error: "Post must have text or Image"})
         }
 
-        if(img) { 
-            const uploadedResponse =await cloudinary.uploader.upload(img)
-            img = uploadedResponse.secure_url;
-        }
+        if (img) {
+			const uploadedResponse = await cloudinary.uploader.upload(img);
+			img = uploadedResponse.secure_url;
+		}
 
         const newPost =new Post( {
             user : userId,
-            text : text ,
-            img
+            text :text ,
+            img   
         })
 
         await newPost.save()
@@ -40,7 +39,9 @@ export const createPost = async(req , res)=>{
 
 export const deletePost = async (req ,res)=>{
     try {
-        const post = Post.findById(req.params.id);
+        const id = req.params.id;
+        const post =await Post.findById({_id : id});
+        
         
         if(!post){
             return res.status(404).json({Error : "Post Not Found" })
@@ -55,7 +56,7 @@ export const deletePost = async (req ,res)=>{
             await cloudinary.uploader.destroy(imgId);
         }
 
-        await Post.findByIdAndDelete(req.params.id);
+        await Post.findByIdAndDelete(id);
 
         res.status(200).json({message : "Post Delete Successfully"});
 
@@ -100,43 +101,47 @@ export const commentOnPost = async (req , res)=>{
 
 export const likeUnlikePost = async(req ,res)=>{
     try {
-        const userId = req.body.id;
-        const {id:postId}= req.params;
+		const userId = req.user._id;
+		const { id: postId } = req.params;
 
-        const post = await Post.findById(postId);
+       
 
-        if(!post){
-            return res.status(404).json({Error : "Post Not Found" })
-        }
+		const post = await Post.findById(postId);
 
-        const userLikedPost = post.likes.includes(userId)
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
 
-        if(userLikedPost){
-            //unlike
-            await Post.updateOne({_id:postId},{$pull : {likes : userId}})
-            await User.updateOne({_id: userId}, {$pull :{likedPost : postId}})
-            res.status(200).json({message : "Post unliked Successfully"})
-        }else{
-            //like
-            post.likes.push(userId);
-            await User.updateOne({_id : userId},{$push : {likedPost : postId}})
-            await post.save();
+		const userLikedPost = post.likes.includes(userId);
+       
+		if (userLikedPost) {
+			// Unlike post
+			await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+			await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
 
-            const notification = new Notification({
-                from : userId,
-                to : post.user,
-                type:"like"
-            })
+            
+			const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());    
+			res.status(200).json(updatedLikes);
+		} else {
+			// Like post
+			post.likes.push(userId);
+			await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } });
+			await post.save();
 
-            await notification.save();
+			const notification = new Notification({
+				from: userId,
+				to: post.user,
+				type: "like",
+			});
+			await notification.save();
 
-            res.status(200).json({message : "Post Liked Successfully"})
-        }
-
-    } catch (error) {
-        console.log(`Error in like post Controller: ${error}`)
-        res.status(500).json({message : "Internal Server Error"})
-    }
+			const updatedLikes = post.likes;
+			res.status(200).json(updatedLikes);
+		}
+	} catch (error) {
+		console.log("Error in likeUnlikePost controller: ", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
 }
 
 export const getAllPosts = async(req , res)=>{

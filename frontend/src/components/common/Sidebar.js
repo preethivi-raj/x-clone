@@ -20,6 +20,7 @@ const Sidebar = () => {
 			try {
 				const res = await fetch(`${baseUrl}/api/auth/logout`,{
 					method : 'POST',
+					 credentials: 'include',
 					headers : {
 						'Content-Type' : 'application/json'
 					},
