@@ -29,6 +29,7 @@ cloudinary.config({
 const PORT = process.env.PORT || 3000
 app.use(cors(
     {
+        //origin: 'http://localhost:3000',
         origin: 'https://at.preethiviraj.me',
         credentials: true
     }
